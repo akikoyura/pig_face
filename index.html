@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Pig Face Animation</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <style>
+        html, body {
+            height: 100%;
+            padding: 0;
+            margin: 0;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .box {
+            width: 100%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+        }
+        canvas {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        #pinkboard {
+            position: relative;
+            margin: auto;
+            height: 500px;
+            width: 500px;
+            animation: heartbeat 1.3s infinite;
+        }
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            30% { transform: scale(.8); }
+            60% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+<div class="box">
+    <canvas id="pinkboard"></canvas>
+</div>
+<script>
+    var canvas = document.getElementById('pinkboard');
+    var ctx = canvas.getContext('2d');
+    canvas.width = 500;
+    canvas.height = 500;
+    var hearts = [];
+    var isBreaking = false;
+
+    function drawPigFace() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Head
+        ctx.save();
+        ctx.translate(250, 250);
+        ctx.beginPath();
+        ctx.arc(0, 0, 150, 0, Math.PI * 2, true);
+        ctx.fillStyle = '#FFC0CB';
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+
+        // Left Ear
+        ctx.save();
+        ctx.translate(150, 150);
+        ctx.rotate(Math.sin(Date.now() / 200) * 0.1);
+        ctx.translate(-150, -150);
+        ctx.beginPath();
+        ctx.ellipse(150, 150, 50, 70, Math.PI / 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#FFC0CB';
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+
+        // Right Ear
+        ctx.save();
+        ctx.translate(350, 150);
+        ctx.rotate(Math.sin(Date.now() / 200) * -0.1);
+        ctx.translate(-350, -150);
+        ctx.beginPath();
+        ctx.ellipse(350, 150, 50, 70, -Math.PI / 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#FFC0CB';
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+
+        // Left Eye
+        ctx.beginPath();
+        ctx.arc(200, 220, 20, 0, Math.PI * 2, true);
+        ctx.fillStyle = '#000';
+        ctx.fill();
+
+        // Right Eye (Winking)
+        ctx.save();
+        ctx.translate(300, 220);
+        ctx.scale(1, Math.abs(Math.sin(Date.now() / 500)));
+        ctx.translate(-300, -220);
+        ctx.beginPath();
+        ctx.arc(300, 220, 20, 0, Math.PI * 2, true);
+        ctx.fillStyle = '#000';
+        ctx.fill();
+        ctx.restore();
+
+        // Snout
+        ctx.save();
+        ctx.translate(250, 300 + Math.sin(Date.now() / 300) * 10);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 50, 30, 0, 0, Math.PI * 2);
+        ctx.fillStyle = '#FFC0CB';
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+
+        // Left Nostril
+        ctx.save();
+        ctx.translate(230, 300);
+        ctx.scale(1, Math.abs(Math.sin(Date.now() / 300)));
+        ctx.translate(-230, -300);
+        ctx.beginPath();
+        ctx.arc(230, 300, 10, 0, Math.PI * 2, true);
+        ctx.fillStyle = '#000';
+        ctx.fill();
+        ctx.restore();
+
+        // Right Nostril
+        ctx.save();
+        ctx.translate(270, 300);
+        ctx.scale(1, Math.abs(Math.sin(Date.now() / 300)));
+        ctx.translate(-270, -300);
+        ctx.beginPath();
+        ctx.arc(270, 300, 10, 0, Math.PI * 2, true);
+        ctx.fillStyle = '#000';
+        ctx.fill();
+        ctx.restore();
+    }
+
+    function drawHeart(x, y, size) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.bezierCurveTo(size / 2, -size / 2, size, size / 3, 0, size);
+        ctx.bezierCurveTo(-size, size / 3, -size / 2, -size / 2, 0, 0);
+        ctx.fillStyle = '#FF5CA4';
+        ctx.fill();
+        ctx.restore();
+    }
+
+    function breakIntoHearts() {
+        hearts = [];
+        for (let i = 0; i < 20; i++) {
+            hearts.push({
+                x: 250,
+                y: 250,
+                size: 20,
+                vx: (Math.random() - 0.5) * 10,
+                vy: (Math.random() - 0.5) * 10
+            });
+        }
+    }
+
+    function updateHearts() {
+        for (let i = 0; i < hearts.length; i++) {
+            hearts[i].x += hearts[i].vx;
+            hearts[i].y += hearts[i].vy;
+            drawHeart(hearts[i].x, hearts[i].y, hearts[i].size);
+        }
+    }
+
+    function uniteHearts() {
+        for (let i = 0; i < hearts.length; i++) {
+            hearts[i].vx = (250 - hearts[i].x) * 0.05;
+            hearts[i].vy = (250 - hearts[i].y) * 0.05;
+        }
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (isBreaking) {
+            updateHearts();
+        } else {
+            drawPigFace();
+        }
+
+        requestAnimationFrame(animate);
+    }
+
+    canvas.addEventListener('click', function () {
+        isBreaking = true;
+        breakIntoHearts();
+        setTimeout(function () {
+            uniteHearts();
+            setTimeout(function () {
+                isBreaking = false;
+            }, 2000);
+        }, 2000);
+    });
+
+    animate();
+</script>
+</body>
+</html>
